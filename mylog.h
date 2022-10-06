@@ -5,6 +5,7 @@
 
 #include <ctime>
 #include <sstream>
+#include <iomanip>
 #include <iostream>
 
 #if defined(_WIN32)
@@ -12,6 +13,7 @@ namespace mywin
 {
     extern "C" __declspec(dllimport) unsigned long __stdcall GetCurrentThreadId();
 }
+#include <sys/timeb.h>
 #else
 #include <unistd.h>
 #include <sys/syscall.h>
@@ -42,14 +44,15 @@ public:
     mylog()
     {
         std::tm now_tm = std::tm();
-        std::time_t now_time = std::time_t();
-
-        std::time(&now_time);
 
 #if defined(_WIN32)
-        ::localtime_s(&now_tm, &now_time);
+        ::timeb now_tb = ::timeb();
+        ::ftime(&now_tb);
+        ::localtime_s(&now_tm, &now_tb.time);
 #else
-        ::localtime_r(&now_time, &now_tm);
+        ::timespec now_ts = ::timespec();
+        ::clock_gettime(CLOCK_REALTIME, &now_ts);
+        ::localtime_r(&now_ts.tv_sec, &now_tm);
 #endif
 
         char now_str[20];
@@ -57,11 +60,20 @@ public:
 
         m_stream
             << now_str
+            << '.'
+            << std::setw(3) << std::setfill('0')
+#if defined(_WIN32)
+            << (now_tb.millitm)
+#else
+            << (now_ts.tv_nsec / 1000000)
+#endif
             << ' '
 #if defined(_WIN32)
-            << mywin::GetCurrentThreadId() << ' ';
+            << mywin::GetCurrentThreadId()
+            << ' ';
 #elif defined(SYS_gettid)
-            << ::syscall(SYS_gettid) << ' ';
+            << ::syscall(SYS_gettid)
+            << ' ';
 #endif
     }
 
