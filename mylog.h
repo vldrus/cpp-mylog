@@ -58,22 +58,22 @@ public:
         char now_str[20];
         std::strftime(now_str, 20, "%Y-%m-%d %H:%M:%S", &now_tm);
 
-        m_stream
-            << now_str
-            << '.'
-            << std::setw(3) << std::setfill('0')
+        m_stream << now_str
+                 << '.'
+                 << std::setw(3) << std::setfill('0')
 #if defined(_WIN32)
-            << (now_tb.millitm)
+                 << (now_tb.millitm)
 #else
-            << (now_ts.tv_nsec / 1000000)
+                 << (now_ts.tv_nsec / 1000000)
 #endif
-            << ' '
+                 << ' ';
+
 #if defined(_WIN32)
-            << mywin::GetCurrentThreadId()
-            << ' ';
+        m_stream << mywin::GetCurrentThreadId()
+                 << ' ';
 #elif defined(SYS_gettid)
-            << ::syscall(SYS_gettid)
-            << ' ';
+        m_stream << ::syscall(SYS_gettid)
+                 << ' ';
 #endif
     }
 
