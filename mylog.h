@@ -67,7 +67,7 @@ public:
 
     ~mylog()
     {
-        std::cout << m_stream.str() + "\n";
+        std::cerr << m_stream.str() + "\n";
     }
 
     std::ostringstream &stream()
