@@ -23,7 +23,7 @@ class myout
 public:
     ~myout()
     {
-        std::cout << m_stream.str() + "\n";
+        std::cout << m_stream.str() + '\n';
     }
 
     std::ostringstream &stream()
@@ -56,18 +56,20 @@ public:
         char datetime[20];
         std::strftime(datetime, 20, "%Y-%m-%d %H:%M:%S", &now_tm);
 
-        m_stream << datetime << " ";
+        const char space = ' ';
+
+        m_stream << datetime << space;
 
 #if defined(_WIN32)
-        m_stream << mywin::GetCurrentThreadId() << " ";
+        m_stream << mywin::GetCurrentThreadId() << space;
 #elif defined(SYS_gettid)
-        m_stream << ::syscall(SYS_gettid) << " ";
+        m_stream << ::syscall(SYS_gettid) << space;
 #endif
     }
 
     ~mylog()
     {
-        std::cerr << m_stream.str() + "\n";
+        std::cerr << m_stream.str() + '\n';
     }
 
     std::ostringstream &stream()
